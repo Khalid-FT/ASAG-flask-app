@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-  return 'hello from flask docker !'
+  return 'hello from github!'
 
 
 if __name__ == "__main__":
