@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-  return 'hello from github!'
+  return 'hello from updated github!'
 
 
 if __name__ == "__main__":
