@@ -23,8 +23,7 @@ def diacritize(text):
   return diacritization(text)
 
 def tokenization(text):
-  text = TextBlob(text)
-  return text.words
+  return text.split()
 
 def stemmer(text):
   return stem.stem(text)
