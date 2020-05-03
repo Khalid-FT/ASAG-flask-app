@@ -73,7 +73,7 @@ print(sequences.shape)
 
 from keras.models import load_model
 
-model = load_model('static/asag_model/model.h5')
+model = load_model('static/asag_model/biology_model.h5')
 
 def preprocces_input(input_ans):
   input_ans = preprocess_data(input_ans)

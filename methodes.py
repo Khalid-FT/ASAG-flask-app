@@ -9,7 +9,6 @@ from textblob import TextBlob
 from nltk.stem.arlstem import ARLSTem
 stem = ARLSTem()
 from static.Shakkala_model.diacritization import diacritization
-
 def removeStopWords(text):
   corps = []
   string = text.strip()
