@@ -1,7 +1,6 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-
 import pandas as pd
 import os
 
@@ -17,63 +16,60 @@ questions = pd.read_csv(os.path.join(data_path, 'questions.csv'), encoding='utf-
 ref_answers = pd.read_csv(os.path.join(data_path, 'ref_answers.csv'), encoding='utf-8')
 stu_answers = pd.read_csv(os.path.join(data_path, 'stu_answer.csv'), encoding='utf-8')
 
+from keras import utils
+
+# training data
+X_train = stu_answers['stu_answer']
+y_train = stu_answers['rater1']
+y_train = utils.to_categorical(y_train,6)
+
 # preprocessing
 import nltk
-
 nltk.download('stopwords')
+# stop words
 arb_stopwords = set(nltk.corpus.stopwords.words("arabic"))
 nltk.download('wordnet')
+from nltk.corpus import stopwords
+import re
 
+# stemming
+#!pip install tashaphyne
+#from tashaphyne.stemming import ArabicLightStemmer
+from nltk.stem.arlstem import ARLSTem
+from nltk.stem.isri import ISRIStemmer
+stem1 = ARLSTem()
+stem2= ISRIStemmer()
 
 def preprocess_data(elements):
   corps = []
-  for string in elements:
+  for string in elements :
     string = string.strip()
     string = string.split()
-    string = [word for word in string if not word in arb_stopwords]
+    string = [stem1.stem(word) for word in string if not word in arb_stopwords  ]
     string = ' '.join(string)
     corps.append(string)
   return corps
 
-
-'''
-type 1 : "Define the scientific term",
-type 2 : "Explain",
-type 3 : "What are the consequences of"
-type4 : "Why".
-'''
-
-# question
-id_question = '1_1'
-question = questions['question'].loc[questions['id_question'] == id_question]
-print('question: ', question.to_list()[0])
-
-from keras import utils
-
-# training answers and score
-train = stu_answers['stu_answer'].loc[stu_answers['idx_quest_ref'] == id_question]
-train_scores = stu_answers['rater1'].loc[stu_answers['idx_quest_ref'] == id_question]
-train_scores = utils.to_categorical(train_scores, 6)
-
 # tokenization
+from keras.preprocessing.text import Tokenizer,text_to_word_sequence , one_hot , text_to_word_sequence
+from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-corps = preprocess_data(train)
+corps = preprocess_data(X_train)
 
-tokenizer = Tokenizer(filters=''''!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''''')
+tokenizer = Tokenizer(filters=''''!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''''' )
 tokenizer.fit_on_texts(corps)
 sequences = tokenizer.texts_to_sequences(corps)
 max_sequence_length = max(len(s) for s in sequences)
-sequences = pad_sequences(sequences, max_sequence_length)
+sequences = pad_sequences(sequences,max_sequence_length)
 word2idx = tokenizer.word_index
 vocab_size = len(word2idx) + 1
 
 print(sequences.shape)
 
 from keras.models import load_model
-
-model = load_model('static/asag_model/model.h5')
+model = load_model('static/asag_model/biology_model.h5')
 
 def preprocces_input(input_ans):
   input_ans = preprocess_data(input_ans)
@@ -86,4 +82,5 @@ def predict(input_ans) :
   input_ans = preprocces_input(input_ans)
   pred = model.predict_classes(input_ans)
   return pred[0]
+
 
