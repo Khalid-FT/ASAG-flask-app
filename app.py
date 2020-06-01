@@ -1,8 +1,7 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-import os
-import  json
+
 from flask import Flask,request,jsonify
 import methodes
 from static.asag_model.full_model import predict
@@ -91,7 +90,8 @@ def asag():
   for elem in asag_requset :
     question =  elem['question']
     answer = elem['answer']
-    score = str(predict(answer))
+    score = str(0)
+    if (methodes.validAnswer(answer)) == True : score = str(predict(answer))
     response = { 'question': question , 'answer': answer , 'score': score }
     asag_response.append(response)
   return jsonify(asag_response)

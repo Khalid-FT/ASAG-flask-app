@@ -32,3 +32,10 @@ def procces(step,body) :
   elif (step == 'stopwords'): body = removeStopWords(body);
   return step , body
 
+from googletrans import Translator
+translator = Translator()
+def validAnswer(input_sen) :
+  if len(input_sen) <= 0 or translator.detect(input_sen).lang != 'ar' :
+    return False
+  else :
+    return True
