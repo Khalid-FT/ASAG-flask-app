@@ -34,7 +34,7 @@ def process():
 templates_dir = 'static/templates/'
 '''
    request : POST 
-   format : [ {"prof_name": "prof1" },{"template_name": "template1"},{"question": "question1" }, { "question": "question2" }]
+   format : [ {"prof_name": "prof1" , "template_name": "template1"},{"question": "question1" ,"answer": "refanswer1" }]
    response : json template
 '''
 @app.route('/addtemplate' , methods=['POST'])
