@@ -50,7 +50,8 @@ def addTemplate():
       else :
         question = elem['question']
         ref_answer = elem['answer']
-        response = {'question': question , 'answer': ref_answer}
+        keywords = elem['keywords']
+        response = {'question': question , 'answer': ref_answer , 'keywords': keywords }
         template.append(response)
 
     dir_prof = os.path.join(templates_dir,prof_name)
@@ -59,15 +60,15 @@ def addTemplate():
     json_path = os.path.join(dir_prof, template_name + '.json')
     with open(json_path, 'w' , encoding='utf8') as json_file:
         json.dump(template, json_file)
-    return jsonify({'msg':'template added!'})
+    return jsonify(template)
 
 '''
    request : GET 
    params : temp & prof
    response : json template
 '''
-@app.route('/asag' , methods=['GET'])
-def template():
+@app.route('/gettemplate' , methods=['GET'])
+def gettemplate():
   template_name = request.args.get('temp')
   prof_name = request.args.get('prof')
   dir_prof = os.path.join(templates_dir, str(prof_name))
@@ -90,9 +91,10 @@ def asag():
   for elem in asag_requset :
     question =  elem['question']
     answer = elem['answer']
+    reg_score = elem['keywords']
     score = str(0)
     if (methodes.validAnswer(answer)) == True : score = str(predict(answer))
-    response = { 'question': question , 'answer': answer , 'score': score }
+    response = { 'question': question , 'answer': answer , 'score': score , 'reg_score': reg_score   }
     asag_response.append(response)
   return jsonify(asag_response)
 
