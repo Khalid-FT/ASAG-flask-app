@@ -92,10 +92,10 @@ def asag():
     question =  elem['question']
     answer = elem['answer']
     keywords = elem['keywords']
-    methodes.reg_score(keywords)
+    reg_score = methodes.reg_score(answer,keywords)
     score = str(0)
     if (methodes.validAnswer(answer)) == True : score = str(predict(answer))
-    response = { 'question': question , 'answer': answer , 'score': score , 'reg_score': keywords   }
+    response = { 'question': question , 'answer': answer , 'score': score , 'reg_score': reg_score   }
     asag_response.append(response)
   return jsonify(asag_response)
 

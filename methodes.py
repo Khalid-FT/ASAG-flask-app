@@ -41,8 +41,6 @@ def validAnswer(input_sen) :
     return True
 
 import re
-keywords =  [ [ "جبريل;جبريل جبري" ] ]
-answer = "   جبري    خالج"
 def reg_score(answer,keywords):
     counter = 0
     reg_score = '0/0'
@@ -60,6 +58,7 @@ def reg_score(answer,keywords):
             pattern = pattern + k + '|'
         results = re.findall(pattern, answer)
         if len(results) != 0: reg_score = '1/1'
+        else  : reg_score = '0/1'
     elif counter == 2:
         for i in range(0, 2):
             keyws = keywords[i][0].split(';')
@@ -155,6 +154,3 @@ def reg_score(answer,keywords):
                 pattern = '('
         reg_score = str(regScore) + '/4'
     return  reg_score
-
-print('reg_score: ',reg_score(answer,keywords))
-
