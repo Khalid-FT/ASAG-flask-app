@@ -13,8 +13,8 @@ stu_answers = stu_answers.replace(np.nan, '', regex=True)
 # preprocessing 
 
 # stop words
-f= open("/content/drive/My Drive/Data/ar_stopwords.txt", "r")
-ar_stopwords = f.read().split()
+#f= open("/content/drive/My Drive/Data/ar_stopwords.txt", "r")
+#ar_stopwords = f.read().split()
 import nltk
 nltk.download('stopwords')
 # stop words
