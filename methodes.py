@@ -47,10 +47,10 @@ def reg_score(answer,keywords):
     regScore = 0
     pattern = '('
     for keyword in keywords:
-        if len(keyword) != 0:
-            counter += 1
+        if len(keyword[0]) != 0 :
+            if keyword[0] != '\r' : counter += 1
     if counter == 1:
-        keyws = keywords[0][0].split(';')
+        keyws = keywords[0][0].split(':')
         for i, k in enumerate(keyws):
             if i == len(keyws) - 1:
                 pattern = pattern + k + ')'
@@ -61,7 +61,7 @@ def reg_score(answer,keywords):
         else  : reg_score = '0/1'
     elif counter == 2:
         for i in range(0, 2):
-            keyws = keywords[i][0].split(';')
+            keyws = keywords[i][0].split(':')
             if i == 0:
                 for j, k in enumerate(keyws):
                     if j == len(keyws) - 1:
@@ -83,7 +83,7 @@ def reg_score(answer,keywords):
         reg_score = str(regScore) + '/2'
     elif counter == 3:
         for i in range(0, 3):
-            keyws = keywords[i][0].split(';')
+            keyws = keywords[i][0].split(':')
 
             if i == 0:
                 for j, k in enumerate(keyws):
@@ -115,7 +115,7 @@ def reg_score(answer,keywords):
         reg_score = str(regScore) + '/3'
     elif counter == 4:
         for i in range(0, 4):
-            keyws = keywords[i][0].split(';')
+            keyws = keywords[i][0].split(':')
             if i == 0:
                 for j, k in enumerate(keyws):
                     if j == len(keyws) - 1:

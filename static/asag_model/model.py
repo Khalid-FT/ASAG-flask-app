@@ -1,84 +1,71 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-
 import pandas as pd
 import os
-
-'''
-type 1 : "Define the scientific term",
-type 2 : "Explain",
-type 3 : "What are the consequences of"
-type4 : "Why".
-'''
+import numpy as np
+from keras import utils
 
 data_path = 'static/asag_model/data/'
-questions = pd.read_csv(os.path.join(data_path, 'questions.csv'), encoding='utf-8')
-ref_answers = pd.read_csv(os.path.join(data_path, 'ref_answers.csv'), encoding='utf-8')
-stu_answers = pd.read_csv(os.path.join(data_path, 'stu_answer.csv'), encoding='utf-8')
+stu_answers = pd.read_csv(os.path.join(data_path, 'stu-answers.csv'), encoding='utf-8')
+stu_answers = stu_answers.replace(np.nan, '', regex=True)
+
 
 # preprocessing
-import nltk
 
+# stop words
+#f= open("/content/drive/My Drive/Data/ar_stopwords.txt", "r")
+#ar_stopwords = f.read().split()
+
+import nltk
 nltk.download('stopwords')
+# stop words
 arb_stopwords = set(nltk.corpus.stopwords.words("arabic"))
 nltk.download('wordnet')
 
+from nltk.stem.arlstem import ARLSTem
+stemmmer = ARLSTem()
 
-def preprocess_data(elements):
+def remove_stowords(elements):
   corps = []
-  for string in elements:
-    string = string.strip()
+  for string in elements :
+    #string = string.strip()
     string = string.split()
-    string = [word for word in string if not word in arb_stopwords]
+    string = [ stemmmer.stem(word) for word in string if not word in arb_stopwords ]
     string = ' '.join(string)
     corps.append(string)
   return corps
 
 
-'''
-type 1 : "Define the scientific term",
-type 2 : "Explain",
-type 3 : "What are the consequences of"
-type4 : "Why".
-'''
-
-# question
-id_question = '1_1'
-question = questions['question'].loc[questions['id_question'] == id_question]
-print('question: ', question.to_list()[0])
-
-from keras import utils
-
-# training answers and score
-train = stu_answers['stu_answer'].loc[stu_answers['idx_quest_ref'] == id_question]
-train_scores = stu_answers['rater1'].loc[stu_answers['idx_quest_ref'] == id_question]
-train_scores = utils.to_categorical(train_scores, 6)
+stu_answers['stu_answer'] = stu_answers['stu_answer'].apply(lambda x: " ".join(x.lower() for x in str(x).split() \
+                                    if x not in arb_stopwords))
+answers = stu_answers['stu_answer'].tolist()
+scores = stu_answers['grade'].tolist()
+scores = utils.to_categorical(scores)
+corps = remove_stowords(answers)
 
 # tokenization
+from keras.preprocessing.text import Tokenizer,text_to_word_sequence , one_hot , text_to_word_sequence
+from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-corps = preprocess_data(train)
-
-tokenizer = Tokenizer(filters=''''!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''''')
+tokenizer = Tokenizer(filters=''''!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ''''' )
 tokenizer.fit_on_texts(corps)
 sequences = tokenizer.texts_to_sequences(corps)
 max_sequence_length = max(len(s) for s in sequences)
-sequences = pad_sequences(sequences, max_sequence_length)
+sequences = pad_sequences(sequences,max_sequence_length)
 word2idx = tokenizer.word_index
 vocab_size = len(word2idx) + 1
 
-print(sequences.shape)
-
 from keras.models import load_model
-
-model = load_model('static/asag_model/model.h5')
+model_path = 'static/asag_model/'
+model = load_model(os.path.join(model_path, 'islamic_model.h5'))
 
 def preprocces_input(input_ans):
-  input_ans = preprocess_data(input_ans)
+  input_ans = remove_stowords(input_ans)
   input_ans = tokenizer.texts_to_sequences(input_ans)
-  input_seq = pad_sequences(input_ans, maxlen=max_sequence_length)
+  input_seq= pad_sequences(input_ans, maxlen=max_sequence_length)
   return input_seq
 
 def predict(input_ans) :
@@ -86,4 +73,3 @@ def predict(input_ans) :
   input_ans = preprocces_input(input_ans)
   pred = model.predict_classes(input_ans)
   return pred[0]
-

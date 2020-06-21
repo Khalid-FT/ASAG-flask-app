@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 
 from flask import Flask,request,jsonify
 import methodes
-from static.asag_model.full_model import predict
+from static.asag_model.model import predict
 import json
 import os
 
@@ -81,7 +81,7 @@ def gettemplate():
 
 '''
    request : POST 
-   Format : [ { "question": "who am i ?" , "answer":"khalid fatah"}, { "question": "city ?" , "answer":"Tanger"}, {} , {}  ]
+   Format : [ { "question": "who am i ?" , "answer":"khalid fatah" , keywords = [[],[],[],[]}, { "question": "city ?" , "answer":"Tanger"}, {} , {}  ]
    response : [ { "question": "who am i ?" , "answer":"khalid fatah" , "score": "5" }, {} , {} , {}  ]
 '''
 @app.route('/asag', methods=['POST'])
