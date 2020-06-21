@@ -7,20 +7,19 @@ import os
 import numpy as np
 # read data
 data_path = 'Data'
-questions_ref= pd.read_csv(os.path.join(data_path, 'questions-ref.csv'), encoding='utf-8')
 stu_answers= pd.read_csv(os.path.join(data_path, 'stu-answers.csv'), encoding='utf-8')
 stu_answers = stu_answers.replace(np.nan, '', regex=True)
 
-# preprocessing
+# preprocessing 
+
 # stop words
+f= open("/content/drive/My Drive/Data/ar_stopwords.txt", "r")
+ar_stopwords = f.read().split()
 import nltk
 nltk.download('stopwords')
 # stop words
-#f= open("training/Data/ar_stopwords.txt", "r")
-#ar_stopwords = f.read().split()
 arb_stopwords = set(nltk.corpus.stopwords.words("arabic"))
 nltk.download('wordnet')
-from nltk.corpus import stopwords
 
 from nltk.stem.arlstem import ARLSTem
 stemmmer = ARLSTem()
@@ -34,13 +33,12 @@ def remove_stowords(elements):
     string = ' '.join(string)
     corps.append(string)
   return corps
-
 answers = stu_answers['stu_answer'].tolist()
 scores = stu_answers['grade'].tolist()
+scores = utils.to_categorical(scores)
 corps = remove_stowords(answers)
-print(scores)
 
-print(fasttext_model.most_similar('جبريل'))
+
 
 # tokenization
 from keras.preprocessing.text import Tokenizer,text_to_word_sequence , one_hot , text_to_word_sequence
@@ -68,7 +66,7 @@ for word, idx in word2idx.items():
         embedding_matrix[idx] = fasttext_model.get_vector(word)
     else :
       #embedding_matrix[idx] = fasttext_model.get_vector("unk")
-      print("  word not exist in voca ---> " + word)
+      print("  word not exist in voca ---> " + word)    
 
 
 # load pre-trained word embeddings into an Embedding layer
@@ -80,6 +78,7 @@ embedding_layer = Embedding(num_words,
                             trainable=False)
 
 
+
 # train model
 from keras.models import Sequential
 from keras.layers import Dense, Embedding
@@ -89,17 +88,18 @@ model = Sequential()
 model.add(embedding_layer)
 #model.add(Embedding(vocab_size,50))
 model.add(LSTM(16, activation='relu'))
-model.add(Dense(1, activation='sigmoid'))
+model.add(Dense(3, activation='softmax'))
 
 # try using different optimizers and different optimizer configs
-model.compile(loss='binary_crossentropy',
+model.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 
 print('Train...')
 model.fit(sequences, scores,
-          batch_size=1, epochs=20)
-#model.save('islamic_model.h5')
+          batch_size=1, epochs=100)                           
+model.save('islamic_model.h5')
+
 
 
 def preprocces_input(input_ans):
@@ -108,7 +108,8 @@ def preprocces_input(input_ans):
   input_seq= pad_sequences(input_ans, maxlen=max_sequence_length)
   return input_seq
 
-input_ans = ['']
-input_ans = preprocces_input(input_ans)
-pred = model.predict_classes(input_ans)
-print('predicted score: ',pred[0])
+def predict(input_ans) :
+  input_ans = [input_ans]
+  input_ans = preprocces_input(input_ans)
+  pred = model.predict_classes(input_ans)
+  return pred[0]
