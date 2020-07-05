@@ -26,10 +26,11 @@ def stemmer(text):
   return stem.stem(text)
 
 def procces(step,body) :
-  if(step == 'tokenization') : body = tokenization(body)
+  if (validAnswer(body)) == False: body = 'non arabic words or empty'
+  elif(step == 'tokenization') : body = tokenization(body)
   elif (step == 'diacritization'): body = diacritize(body)
   elif ( step == 'lemma' ) : body = stemmer(body)
-  elif (step == 'stopwords'): body = removeStopWords(body);
+  elif (step == 'stopwords'): body = removeStopWords(body)
   return step , body
 
 from googletrans import Translator
